@@ -1,3 +1,4 @@
+
 -- MySQL Workbench Forward Engineering
 
 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
@@ -45,16 +46,16 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `Unit`;
 CREATE TABLE `Unit` (
-  `unit_ID` INT NOT NULL AUTO_INCREMENT,
+  `unit_id` INT NOT NULL AUTO_INCREMENT,
   `property_id` INT NOT NULL,
   `occupied` TINYINT NULL,
   `owner_id` INT NOT NULL,
   `market_price` DECIMAL(10,2) NULL,
   `unit_number` INT NULL,
-  PRIMARY KEY (`unit_ID`),
+  PRIMARY KEY (`unit_id`),
   INDEX `fk_Unit_Property1_idx` (`property_id` ASC),
   INDEX `fk_Unit_Person1_idx` (`owner_id` ASC),
-  UNIQUE INDEX `unit_ID_UNIQUE` (`unit_ID` ASC),
+  UNIQUE INDEX `unit_id_UNIQUE` (`unit_id` ASC),
   CONSTRAINT `fk_Unit_Property1`
     FOREIGN KEY (`property_id`)
     REFERENCES `Property` (`property_id`)
@@ -83,7 +84,7 @@ CREATE TABLE `Lease` (
   INDEX `fk_Lease_Person1_idx` (`leasing_user_id` ASC),
   CONSTRAINT `fk_Lease_Unit1`
     FOREIGN KEY (`unit_id`)
-    REFERENCES `Unit` (`unit_ID`)
+    REFERENCES `Unit` (`unit_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Lease_Person1`
