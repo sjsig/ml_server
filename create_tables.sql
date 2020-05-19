@@ -24,6 +24,7 @@ CREATE TABLE `user` (
   `account_balance` DECIMAL(10,2) NULL,
   `is_tenant` BOOLEAN NULL,
   `is_landlord` BOOLEAN NULL,
+  `is_admin` BOOLEAN DEFAULT 0, 
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 
