@@ -10,21 +10,21 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 -- -----------------------------------------------------
 use `heroku_341a27901840f2f`;
 -- -----------------------------------------------------
--- Table `heroku_341a27901840f2f`.`Person`
+-- Table `heroku_341a27901840f2f`.`User`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `first_name` VARCHAR(45) NULL,
   `last_name` VARCHAR(45) NULL,
-  `username` VARCHAR(45) NULL UNIQUE,
-  `password` VARCHAR(60) NULL,
+  `username` VARCHAR(45) NOT NULL UNIQUE,
+  `password` VARCHAR(60) NOT NULL,
   `age` INT NULL,
   `gender` VARCHAR(45) NULL,
-  `account_balance` DECIMAL(10,2) NULL,
-  `is_tenant` BOOLEAN NULL,
-  `is_landlord` BOOLEAN NULL,
-  `is_admin` BOOLEAN DEFAULT 0, 
+  `account_balance` DECIMAL(10,2) NOT NULL DEFAULT 0.0,
+  `is_tenant` BOOLEAN NOT NULL DEFAULT true,
+  `is_landlord` BOOLEAN NOT NULL DEFAULT false,
+  `is_admin` BOOLEAN NOT NULL DEFAULT false, 
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 
@@ -35,12 +35,12 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `Property`;
 CREATE TABLE IF NOT EXISTS `Property` (
   `property_id` INT NOT NULL AUTO_INCREMENT,
-  `address` VARCHAR(250) NULL,
-  `city` VARCHAR(45) NULL,
+  `address` VARCHAR(250) NOT NULL,
+  `city` VARCHAR(45) NOT NULL,
   `owner_id` INT NOT NULL,
   PRIMARY KEY (`property_id`),
-  INDEX `fk_Unit_Person1_idx` (`owner_id` ASC),
-	CONSTRAINT `fk_Property_Person1`
+  INDEX `fk_Unit_User1_idx` (`owner_id` ASC),
+	CONSTRAINT `fk_Property_User1`
 		FOREIGN KEY (`owner_id`)
 		REFERENCES `User` (`id`)
 		ON DELETE NO ACTION
@@ -55,8 +55,8 @@ CREATE TABLE `Unit` (
   `unit_id` INT NOT NULL AUTO_INCREMENT,
   `property_id` INT NOT NULL,
   `is_occupied` BOOLEAN NOT NULL DEFAULT false,
-  `market_price` DECIMAL(10,2) NULL,
-  `unit_number` varchar(45) NULL,
+  `market_price` DECIMAL(10,2) NOT NULL,
+  `unit_number` varchar(45) NOT NULL,
   PRIMARY KEY (`unit_id`),
   INDEX `fk_Unit_Property1_idx` (`property_id` ASC),
   UNIQUE INDEX `unit_id_UNIQUE` (`unit_id` ASC),
@@ -73,20 +73,21 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `Lease`;
 CREATE TABLE `Lease` (
+  `lease_id` INT NOT NULL AUTO_INCREMENT,
   `unit_id` INT NOT NULL,
   `start_date` DATETIME NOT NULL,
-  `price_monthly` DECIMAL(10,2) NULL,
-  `end_date` DATETIME NULL,
-  `leasing_user_id` INT NULL,
+  `end_date` DATETIME NOT NULL,
+  `price_monthly` DECIMAL(10,2) NOT NULL,
+  `leasing_user_id` INT NOT NULL,
+  PRIMARY KEY (`lease_id`),
   INDEX `fk_Lease_Unit1_idx` (`unit_id` ASC),
-  PRIMARY KEY (`unit_id`, `start_date`),
-  INDEX `fk_Lease_Person1_idx` (`leasing_user_id` ASC),
+  INDEX `fk_Lease_User1_idx` (`leasing_user_id` ASC),
   CONSTRAINT `fk_Lease_Unit1`
     FOREIGN KEY (`unit_id`)
     REFERENCES `Unit` (`unit_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_Lease_Person1`
+  CONSTRAINT `fk_Lease_User1`
     FOREIGN KEY (`leasing_user_id`)
     REFERENCES `User` (`id`)
     ON DELETE NO ACTION
@@ -106,14 +107,14 @@ CREATE TABLE  `Rating` (
   `being_rated_id` INT NOT NULL,
   `being_rated_as` VARCHAR(45) NULL,
   PRIMARY KEY (`rating_id`),
-  INDEX `fk_Rating_Person1_idx` (`rater_id` ASC),
-  INDEX `fk_Rating_Person2_idx` (`being_rated_id` ASC),
-  CONSTRAINT `fk_Rating_Person1`
+  INDEX `fk_Rating_User1_idx` (`rater_id` ASC),
+  INDEX `fk_Rating_User2_idx` (`being_rated_id` ASC),
+  CONSTRAINT `fk_Rating_User1`
     FOREIGN KEY (`rater_id`)
     REFERENCES `User` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_Rating_Person2`
+  CONSTRAINT `fk_Rating_User2`
     FOREIGN KEY (`being_rated_id`)
     REFERENCES `User` (`id`)
     ON DELETE NO ACTION
@@ -129,15 +130,15 @@ CREATE TABLE `Debt` (
   `creditor_id` INT NOT NULL,
   `debtor_id` INT NOT NULL,
   `amount_owed` DECIMAL(10,2) NULL,
-  INDEX `fk_Debt_Person1_idx` (`creditor_id` ASC),
-  INDEX `fk_Debt_Person2_idx` (`debtor_id` ASC),
+  INDEX `fk_Debt_User1_idx` (`creditor_id` ASC),
+  INDEX `fk_Debt_User2_idx` (`debtor_id` ASC),
   PRIMARY KEY (`creditor_id`, `debtor_id`),
-  CONSTRAINT `fk_Debt_Person1`
+  CONSTRAINT `fk_Debt_User1`
     FOREIGN KEY (`creditor_id`)
     REFERENCES `User` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_Debt_Person2`
+  CONSTRAINT `fk_Debt_User2`
     FOREIGN KEY (`debtor_id`)
     REFERENCES `User` (`id`)
     ON DELETE NO ACTION
