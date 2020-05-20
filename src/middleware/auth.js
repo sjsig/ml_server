@@ -5,6 +5,9 @@ exports.isLoggedIn = function (req, res, next) {
   try {
     const token = req.headers.authorization.split(" ")[1]; //authorization is set up as such: Bearer token
     jwt.verify(token, process.env.AUTH_SECRET, function (err, decoded) {
+      console.log("here is the decoded")
+      console.log(decoded)
+      req.params.user = { id : decoded.userId}
       if (decoded) {
         return next();
       } else {
@@ -27,6 +30,7 @@ exports.isAuthorized = function (req, res, next) {
   try {
     const token = req.headers.authorization.split(" ")[1];
     jwt.verify(token, process.env.AUTH_SECRET, function (err, decoded) {
+    
       if (decoded) {
         if (decoded.is_admin == 1 || `${decoded.id}` === req.params.userId) {
           return next();

@@ -1,6 +1,16 @@
+/*
+{
+	"address" : "123 Main Street",
+	"city" : "Duxbury, MA, 02332"
+}
+// must be logged in
+*/
 export const createProperty =  (req, res) => {
     const data = req.body
-        
+    data.owner_id = req.params.user.id
+    console.log("here is the createProperty")
+    console.log(data)
+
     global.connection.query('INSERT INTO property SET ?',
     data,
     function (error, results, fields) {
@@ -11,6 +21,19 @@ export const createProperty =  (req, res) => {
     });
 };
 
+/*
+RES:
+
+{
+    "status": 200,
+    "property": {
+        "property_id": 1,
+        "address": "123 Main Street",
+        "city": "Duxbury, MA, 02332",
+        "owner_id": 1
+    }
+}
+*/
 export const getProperty =  (req, res) => {
     const { propertyId } = req.params; 
     const data = { property_id: propertyId }
@@ -27,6 +50,22 @@ export const getProperty =  (req, res) => {
         })
     })
 };
+
+export const getAllProperties =  (req, res) => {
+
+  const data = { owner_id : req.params.user.id}
+  global.connection.query(`SELECT * FROM property WHERE ?`, 
+  data, 
+  function (error, results, fields) {
+  
+      if (error) throw error;
+  
+      res.send({
+          status: 200,
+          property: results
+      })
+  })
+}
 
 export const updateProperty =  (req, res) => {
     const data = req.body

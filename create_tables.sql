@@ -37,10 +37,15 @@ CREATE TABLE IF NOT EXISTS `Property` (
   `property_id` INT NOT NULL AUTO_INCREMENT,
   `address` VARCHAR(250) NULL,
   `city` VARCHAR(45) NULL,
-  `features` VARCHAR(200) NULL,
-  PRIMARY KEY (`property_id`))
+  `owner_id` INT NOT NULL,
+  PRIMARY KEY (`property_id`),
+  INDEX `fk_Unit_Person1_idx` (`owner_id` ASC),
+	CONSTRAINT `fk_Property_Person1`
+		FOREIGN KEY (`owner_id`)
+		REFERENCES `User` (`id`)
+		ON DELETE NO ACTION
+		ON UPDATE NO ACTION)
 ENGINE = InnoDB;
-
 
 -- -----------------------------------------------------
 -- Table `Unit`
@@ -50,21 +55,14 @@ CREATE TABLE `Unit` (
   `unit_id` INT NOT NULL AUTO_INCREMENT,
   `property_id` INT NOT NULL,
   `occupied` TINYINT NULL,
-  `owner_id` INT NOT NULL,
   `market_price` DECIMAL(10,2) NULL,
   `unit_number` INT NULL,
   PRIMARY KEY (`unit_id`),
   INDEX `fk_Unit_Property1_idx` (`property_id` ASC),
-  INDEX `fk_Unit_Person1_idx` (`owner_id` ASC),
   UNIQUE INDEX `unit_id_UNIQUE` (`unit_id` ASC),
   CONSTRAINT `fk_Unit_Property1`
     FOREIGN KEY (`property_id`)
     REFERENCES `Property` (`property_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_Unit_Person1`
-    FOREIGN KEY (`owner_id`)
-    REFERENCES `User` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;

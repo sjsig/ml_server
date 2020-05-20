@@ -38,13 +38,6 @@ export const getUser = (req, res) => {
   });
 };
 
-const getUserByID = (user_id) => {
-  global.connection.query(`SELECT * FROM user WHERE ?`, { id: user_id }, function (error, results, fields) {
-    if (error) throw error;
-    return results[0];
-  });
-};
-
 /*
 Example postData:
 
@@ -65,19 +58,32 @@ export const signup = async (req, res, next) => {
 
   let hashedPassword = await bcrypt.hash(postData.password, 10);
   postData["password"] = hashedPassword;
-  bcrypt.compare('password', hashedPassword, function(err, result) {
-    if (err) { throw (err); }
-    console.log("BCREYUPT TEST")
-    console.log(result);
-  });
 
-  global.connection.query("INSERT INTO user SET ?", postData, function (error, results, fields) {
+  global.connection.query("INSERT INTO user SET ?", postData, async function (error, results, fields) {
     if (error) throw error;
-    res.send({
-      status: 201,
-      token: tokenForUser(results.insertId), //is this asynchronous?
-      userId: results.insertId,
+  
+    const timestamp = new Date().getTime();
+    global.connection.query(`SELECT * FROM user WHERE ?`, { id : results.insertId }, 
+    function (error, users, fields) {
+      if (error) throw error;
+      console.log("useres", users)
+      const userInfo = { userId : users[0].id }
+      console.log("userinfo")
+      console.log(userInfo)
+
+      const token = jwt.sign({ ...userInfo, iat: timestamp }, process.env.AUTH_SECRET);
+      console.log("heres the token")
+      console.log(token)
+      console.log("heres results")
+      console.log(results.insertId)
+
+      res.send({
+        status: 201,
+        userId: userInfo.userId,
+        token,
+      });
     });
+    
   });
 };
 
@@ -96,9 +102,6 @@ export const signin = async (req, res, next) => {
   function (error, results, fields) {
     if (error) throw error;
     const user_data = results[0]
-    console.log("oassword")
-    console.log(user_data)
-    console.log(postData.password, user_data.password)
 
   bcrypt.compare(postData.password, user_data.password)
       .then((isMatch) => {
@@ -128,11 +131,3 @@ export const signin = async (req, res, next) => {
       
   
 };
-
-// encodes a new token for a user object
-function tokenForUser(id) {
-  const timestamp = new Date().getTime();
-  const userInfo = getUserByID(id);
-  
-  return jwt.sign({ ...userInfo, iat: timestamp }, process.env.AUTH_SECRET);
-}

@@ -12,19 +12,22 @@ router.get("/", (req, res) => {
 });
 
 // USER CONTROLLER
-router.route("/users/:userId").get(UserController.getUser).delete(UserController.deleteUser);
+router.route("/users/:userId")
+  .get(UserController.getUser)
+  .delete(UserController.deleteUser);
 
 router.post("/signin", UserController.signin);
 router.post("/signup", UserController.signup);
 
 // PROPERTY CONTROLLER
-router
-  .route("/property/:propertyId")
-  .get(PropertyController.getProperty)
-  .delete(PropertyController.deleteProperty)
-  .put(PropertyController.updateProperty);
+router.route("/property/:propertyId")
+  .get(isLoggedIn, PropertyController.getProperty)
+  .delete(isLoggedIn, PropertyController.deleteProperty)
+  .put(isLoggedIn, PropertyController.updateProperty);
 
-router.route("/property").post(PropertyController.createProperty);
+router.route("/property")
+.get(isLoggedIn, PropertyController.getAllProperties)
+.post(isLoggedIn, PropertyController.createProperty);
 
 // UNIT CONTROLLER
 router.route("/property/:propertyId/unit/:unitId").get(UnitController.deleteUnit).delete(UnitController.deleteUnit);
