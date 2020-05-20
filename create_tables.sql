@@ -54,9 +54,9 @@ DROP TABLE IF EXISTS `Unit`;
 CREATE TABLE `Unit` (
   `unit_id` INT NOT NULL AUTO_INCREMENT,
   `property_id` INT NOT NULL,
-  `occupied` TINYINT NULL,
+  `is_occupied` BOOLEAN NOT NULL DEFAULT false,
   `market_price` DECIMAL(10,2) NULL,
-  `unit_number` INT NULL,
+  `unit_number` varchar(45) NULL,
   PRIMARY KEY (`unit_id`),
   INDEX `fk_Unit_Property1_idx` (`property_id` ASC),
   UNIQUE INDEX `unit_id_UNIQUE` (`unit_id` ASC),

@@ -30,8 +30,13 @@ router.route("/property")
 .post(isLoggedIn, PropertyController.createProperty);
 
 // UNIT CONTROLLER
-router.route("/property/:propertyId/unit/:unitId").get(UnitController.deleteUnit).delete(UnitController.deleteUnit);
+router.route("/property/:propertyId/unit/:unitId")
+.get(UnitController.getUnit)
+.delete(UnitController.deleteUnit)
+.put(UnitController.updateUnit)
 
-router.route("/property/:propertyId/unit").post(UnitController.createUnit);
+router.route("/property/:propertyId/unit")
+.get(UnitController.getAllUnitsByProperty)
+.post(UnitController.createUnit);
 
 export default router;
