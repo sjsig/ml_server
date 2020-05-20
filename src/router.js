@@ -4,7 +4,6 @@ import * as PropertyController from "./controllers/property_controller";
 import * as UnitController from "./controllers/unit_controller";
 
 import { isLoggedIn, isAuthorized, isAdmin } from "./middleware/auth";
-import bcrypt from "bcryptjs";
 
 const router = Router();
 

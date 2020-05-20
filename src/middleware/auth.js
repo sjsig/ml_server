@@ -14,7 +14,7 @@ exports.isLoggedIn = function (req, res, next) {
         });
       }
     });
-  } catch {
+  } catch (error) {
     return next({
       status: 401,
       message: "Please log in first",
@@ -26,7 +26,7 @@ exports.isLoggedIn = function (req, res, next) {
 exports.isAuthorized = function (req, res, next) {
   try {
     const token = req.headers.authorization.split(" ")[1];
-    jwt.verify(token, process.env.SECRET_KEY, function (err, decoded) {
+    jwt.verify(token, process.env.AUTH_SECRET, function (err, decoded) {
       if (decoded) {
         if (decoded.is_admin == 1 || `${decoded.id}` === req.params.userId) {
           return next();
@@ -38,7 +38,7 @@ exports.isAuthorized = function (req, res, next) {
         }
       }
     });
-  } catch {
+  } catch (err) {
     return next({
       status: 401,
       message: "Unauthorized",
@@ -49,7 +49,7 @@ exports.isAuthorized = function (req, res, next) {
 exports.isAdmin = function (req, res, next) {
   try {
     const token = req.headers.authorization.split(" ")[1];
-    jwt.verify(token, process.env.SECRET_KEY, function (err, decoded) {
+    jwt.verify(token, process.env.AUTH_SECRET, function (err, decoded) {
       if (decoded) {
         if (decoded.is_admin == 1) {
           return next();

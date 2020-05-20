@@ -18,7 +18,7 @@ CREATE TABLE `user` (
   `first_name` VARCHAR(45) NULL,
   `last_name` VARCHAR(45) NULL,
   `username` VARCHAR(45) NULL UNIQUE,
-  `password` VARCHAR(45) NULL,
+  `password` VARCHAR(60) NULL,
   `age` INT NULL,
   `gender` VARCHAR(45) NULL,
   `account_balance` DECIMAL(10,2) NULL,
