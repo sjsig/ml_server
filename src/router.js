@@ -19,8 +19,8 @@ router.route("/users/:userId")
   .get(UserController.getUser)
   .delete(UserController.deleteUser);
 
-router.post("/signin", UserController.signin);
-router.post("/signup", UserController.signup);
+router.post("/auth/signin", UserController.signin);
+router.post("/auth/signup", UserController.signup);
 
 // PROPERTY CONTROLLER
 router.route("/property/:propertyId")
@@ -31,6 +31,9 @@ router.route("/property/:propertyId")
 router.route("/property")
 .get(isLoggedIn, PropertyController.getAllProperties)
 .post(isLoggedIn, PropertyController.createProperty);
+
+router.route("/listings")
+.get(PropertyController.getVacantUnits)
 
 // UNIT CONTROLLER
 router.route("/property/:propertyId/unit/:unitId")

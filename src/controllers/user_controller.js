@@ -66,16 +66,9 @@ export const signup = async (req, res, next) => {
     global.connection.query(`SELECT * FROM user WHERE ?`, { id : results.insertId }, 
     function (error, users, fields) {
       if (error) throw error;
-      console.log("useres", users)
       const userInfo = { userId : users[0].id }
-      console.log("userinfo")
-      console.log(userInfo)
-
       const token = jwt.sign({ ...userInfo, iat: timestamp }, process.env.AUTH_SECRET);
-      console.log("heres the token")
-      console.log(token)
-      console.log("heres results")
-      console.log(results.insertId)
+
 
       res.send({
         status: 201,
@@ -102,23 +95,24 @@ export const signin = async (req, res, next) => {
   function (error, results, fields) {
     if (error) throw error;
     const user_data = results[0]
+    const timestamp = new Date().getTime();
 
   bcrypt.compare(postData.password, user_data.password)
       .then((isMatch) => {
         if (isMatch) {
           res.send({
             status: 201,
-            token: tokenForUser(user_data.id),
+            token:  jwt.sign({ ...user_data, iat: timestamp }, process.env.AUTH_SECRET),
             userId: user_data.id,
           });
         } else if (!user_data) {
           res.send({
-            status: 200,
+            status: 400,
             message: "That username is incorrect",
           });
         } else {
           res.send({
-            status: 200,
+            status: 400,
             message: "That password is incorrect",
           });
         }
@@ -126,6 +120,10 @@ export const signin = async (req, res, next) => {
         .catch((error) => {
           console.log("Heres an error")
           console.log(error)
+          res.send({
+            status: 400,
+            message:error,
+          });
         })
       })
       
