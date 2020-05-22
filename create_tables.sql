@@ -102,10 +102,9 @@ DROP TABLE IF EXISTS `Rating`;
 CREATE TABLE  `Rating` (
   `rating_id` INT NOT NULL AUTO_INCREMENT,
   `text` VARCHAR(400) NULL,
-  `score` INT NULL,
+  `score` INT NOT NULL,
   `rater_id` INT NOT NULL,
   `being_rated_id` INT NOT NULL,
-  `being_rated_as` VARCHAR(45) NULL,
   PRIMARY KEY (`rating_id`),
   INDEX `fk_Rating_User1_idx` (`rater_id` ASC),
   INDEX `fk_Rating_User2_idx` (`being_rated_id` ASC),
@@ -125,21 +124,22 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `Debt`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `Debt`;
-CREATE TABLE `Debt` (
-  `creditor_id` INT NOT NULL,
-  `debtor_id` INT NOT NULL,
-  `amount_owed` DECIMAL(10,2) NULL,
-  INDEX `fk_Debt_User1_idx` (`creditor_id` ASC),
-  INDEX `fk_Debt_User2_idx` (`debtor_id` ASC),
-  PRIMARY KEY (`creditor_id`, `debtor_id`),
-  CONSTRAINT `fk_Debt_User1`
-    FOREIGN KEY (`creditor_id`)
+DROP TABLE IF EXISTS `Transaction`;
+CREATE TABLE `Transaction` (
+  `transaction_id` INT NOT NULL AUTO_INCREMENT,
+  `landlord_id` INT NOT NULL,
+  `tenant_id` INT NOT NULL,
+  `amount` DECIMAL(10,2) NOT NULL,
+  INDEX `fk_Transaction_User1_idx` (`landlord_id` ASC),
+  INDEX `fk_Transaction_User2_idx` (`tenant_id` ASC),
+  PRIMARY KEY (`transaction_id`),
+  CONSTRAINT `fk_Transaction_User1`
+    FOREIGN KEY (`landlord_id`)
     REFERENCES `User` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_Debt_User2`
-    FOREIGN KEY (`debtor_id`)
+  CONSTRAINT `fk_Transaction_User2`
+    FOREIGN KEY (`tenant_id`)
     REFERENCES `User` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)

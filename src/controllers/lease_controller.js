@@ -1,10 +1,12 @@
 /*
 {
-	"market_price" : "1600.79",
-	"lease_number" : "3F"
+	"price_monthly" : "1600.79",
+	"start_date" : "1999-05-04",
+	"end_date" : "2020-05-04",
+	"leasing_user_id" : 1
+
 }
 */
-
 export const createLease = (req, res) => {
     const data = {
         ...req.body,

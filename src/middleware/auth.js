@@ -30,9 +30,9 @@ exports.isAuthorized = function (req, res, next) {
   try {
     const token = req.headers.authorization.split(" ")[1];
     jwt.verify(token, process.env.AUTH_SECRET, function (err, decoded) {
-    
+      req.params.user = { id : decoded.userId}
       if (decoded) {
-        if (decoded.is_admin == 1 || `${decoded.id}` === req.params.userId) {
+        if (decoded.is_admin == 1 || `${decoded.userId}` === req.params.userId) {
           return next();
         } else {
           return next({
