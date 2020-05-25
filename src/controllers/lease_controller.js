@@ -9,7 +9,7 @@
 export const createLease = (req, res) => {
   const data = {
     ...req.body,
-    leasing_user_id: req.params.id,
+    leasing_user_id: req.params.user,
     unit_id: req.params.unitId,
   };
   global.connection.query("INSERT INTO lease SET ?", data, function (error, results, fields) {
