@@ -36,7 +36,7 @@ router.route("/listings").get(PropertyController.getVacantUnits);
 
 // UNIT CONTROLLER
 router
-  .route("/property/:propertyId/unit/:unitId")
+  .route("/unit/:unitId")
   .get(UnitController.getUnit)
   .delete(UnitController.deleteUnit)
   .put(UnitController.updateUnit);
