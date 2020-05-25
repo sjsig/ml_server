@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
-import util from 'util'
+import util from "util";
 
 dotenv.config({ silent: true });
 
@@ -61,14 +61,18 @@ export const signup = async (req, res, next) => {
 
   global.connection.query("INSERT INTO user SET ?", postData, async function (error, results, fields) {
     if (error) throw error;
-  
-    const timestamp = new Date().getTime();
-    global.connection.query(`SELECT * FROM user WHERE ?`, { id : results.insertId }, 
-    function (error, users, fields) {
-      if (error) throw error;
-      const userInfo = { userId : users[0].id }
-      const token = jwt.sign({ ...userInfo, iat: timestamp }, process.env.AUTH_SECRET);
 
+    const timestamp = new Date().getTime();
+    global.connection.query(`SELECT * FROM user WHERE ?`, { id: results.insertId }, function (error, users, fields) {
+      if (error) throw error;
+      const userInfo = {
+        userId: users[0].id,
+        first_name: users[0].first_name,
+        is_tenant: users[0].is_tenant,
+        is_landlord: users[0].is_landlord,
+        is_admin: users[0].is_admin,
+      };
+      const token = jwt.sign({ ...userInfo, iat: timestamp }, process.env.AUTH_SECRET);
 
       res.send({
         status: 201,
@@ -76,7 +80,6 @@ export const signup = async (req, res, next) => {
         token,
       });
     });
-    
   });
 };
 
@@ -89,20 +92,26 @@ Example postData:
 */
 export const signin = async (req, res, next) => {
   const postData = req.body;
-  const username = postData.username
-  global.connection.query(`SELECT * FROM user WHERE ?`, 
-  { username }, 
-  function (error, results, fields) {
+  const username = postData.username;
+  global.connection.query(`SELECT * FROM user WHERE ?`, { username }, function (error, results, fields) {
     if (error) throw error;
-    const user_data = results[0]
+    const user_data = results[0];
+    const user_data_to_send = {
+      userId: user_data.id,
+      first_name: user_data.first_name,
+      is_tenant: user_data.is_tenant,
+      is_landlord: user_data.is_landlord,
+      is_admin: user_data.is_admin,
+    };
     const timestamp = new Date().getTime();
 
-  bcrypt.compare(postData.password, user_data.password)
+    bcrypt
+      .compare(postData.password, user_data.password)
       .then((isMatch) => {
         if (isMatch) {
           res.send({
             status: 201,
-            token:  jwt.sign({ ...user_data, iat: timestamp }, process.env.AUTH_SECRET),
+            token: jwt.sign({ ...user_data_to_send, iat: timestamp }, process.env.AUTH_SECRET),
             userId: user_data.id,
           });
         } else if (!user_data) {
@@ -116,16 +125,14 @@ export const signin = async (req, res, next) => {
             message: "That password is incorrect",
           });
         }
-        })
-        .catch((error) => {
-          console.log("Heres an error")
-          console.log(error)
-          res.send({
-            status: 400,
-            message:error,
-          });
-        })
       })
-      
-  
+      .catch((error) => {
+        console.log("Heres an error");
+        console.log(error);
+        res.send({
+          status: 400,
+          message: error,
+        });
+      });
+  });
 };
