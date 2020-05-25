@@ -96,43 +96,44 @@ export const signin = async (req, res, next) => {
   global.connection.query(`SELECT * FROM user WHERE ?`, { username }, function (error, results, fields) {
     if (error) throw error;
     const user_data = results[0];
-    const user_data_to_send = {
-      userId: user_data.id,
-      first_name: user_data.first_name,
-      is_tenant: user_data.is_tenant,
-      is_landlord: user_data.is_landlord,
-      is_admin: user_data.is_admin,
-    };
-    const timestamp = new Date().getTime();
-
-    bcrypt
-      .compare(postData.password, user_data.password)
-      .then((isMatch) => {
-        if (isMatch) {
-          res.send({
-            status: 201,
-            token: jwt.sign({ ...user_data_to_send, iat: timestamp }, process.env.AUTH_SECRET),
-            userId: user_data.id,
-          });
-        } else if (!user_data) {
-          res.send({
-            status: 400,
-            message: "That username is incorrect",
-          });
-        } else {
-          res.send({
-            status: 400,
-            message: "That password is incorrect",
-          });
-        }
-      })
-      .catch((error) => {
-        console.log("Heres an error");
-        console.log(error);
-        res.send({
-          status: 400,
-          message: error,
-        });
+    if (!user_data) {
+      res.send({
+        status: 400,
+        message: "That username is incorrect",
       });
+    } else {
+      const timestamp = new Date().getTime();
+      bcrypt
+        .compare(postData.password, user_data.password)
+        .then((isMatch) => {
+          if (isMatch) {
+            const user_data_to_send = {
+              userId: user_data.id,
+              first_name: user_data.first_name,
+              is_tenant: user_data.is_tenant,
+              is_landlord: user_data.is_landlord,
+              is_admin: user_data.is_admin,
+            };
+            res.send({
+              status: 201,
+              token: jwt.sign({ ...user_data_to_send, iat: timestamp }, process.env.AUTH_SECRET),
+              userId: user_data.id,
+            });
+          } else {
+            res.send({
+              status: 400,
+              message: "That password is incorrect",
+            });
+          }
+        })
+        .catch((error) => {
+          console.log("Heres an error");
+          console.log(error);
+          res.send({
+            status: 400,
+            message: error,
+          });
+        });
+    }
   });
 };
