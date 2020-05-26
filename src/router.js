@@ -32,6 +32,8 @@ router
   .get(isLoggedIn, PropertyController.getAllProperties)
   .post(isLoggedIn, PropertyController.createProperty);
 
+router.route("/property/landlord/:userId").get(isAuthorized, PropertyController.getLandlordProperties);
+
 router.route("/listings").get(PropertyController.getVacantUnits);
 
 // UNIT CONTROLLER
@@ -51,6 +53,8 @@ router
   .put(LeaseController.updateLease);
 
 router.route("/unit/:unitId/lease").post(isLoggedIn, LeaseController.createLease);
+
+router.route("/lease/:userId").get(isAuthorized, LeaseController.getSignedLease);
 
 // RATING CONTROLLER
 router

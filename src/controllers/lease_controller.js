@@ -9,7 +9,7 @@
 export const createLease = (req, res) => {
   const data = {
     ...req.body,
-    leasing_user_id: req.params.user,
+    leasing_user_id: req.params.user.id,
     unit_id: req.params.unitId,
   };
   global.connection.query("INSERT INTO lease SET ?", data, function (error, results, fields) {
@@ -31,6 +31,19 @@ export const getLease = (req, res) => {
     res.send({
       status: 200,
       leases: results[0],
+    });
+  });
+};
+
+export const getSignedLease = (req, res) => {
+  const data = { leasing_user_id: req.params.user.id };
+
+  global.connection.query(`SELECT * FROM lease WHERE ?`, data, function (error, results, fields) {
+    if (error) throw error;
+
+    res.send({
+      status: 200,
+      lease: results[0],
     });
   });
 };
