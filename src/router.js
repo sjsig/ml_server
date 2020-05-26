@@ -25,7 +25,7 @@ router
   .route("/property/:propertyId")
   .get(isLoggedIn, PropertyController.getProperty)
   .delete(isLoggedIn, PropertyController.deleteProperty)
-  .put(isAuthorized, PropertyController.updateProperty);
+  .put(isLoggedIn, PropertyController.updateProperty);
 
 router
   .route("/property")
