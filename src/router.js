@@ -24,7 +24,7 @@ router.post("/auth/signup", UserController.signup);
 router
   .route("/property/:propertyId")
   .get(isLoggedIn, PropertyController.getProperty)
-  .delete(isAuthorized, PropertyController.deleteProperty)
+  .delete(isLoggedIn, PropertyController.deleteProperty)
   .put(isAuthorized, PropertyController.updateProperty);
 
 router
