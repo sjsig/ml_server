@@ -1,14 +1,13 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
-import util from "util";
 
 dotenv.config({ silent: true });
 
 export const deleteUser = (req, res) => {
   const { userId } = req.params;
 
-  global.connection.query(`DELETE FROM user WHERE ?`, { id: userId }, function (error, results, fields) {
+  global.connection.query(`DELETE FROM User WHERE ?`, { id: userId }, function (error, results, fields) {
     if (error) throw error;
 
     if (results.affectedRows == 1) {
@@ -28,7 +27,7 @@ export const deleteUser = (req, res) => {
 export const getUser = (req, res) => {
   const { userId } = req.params;
 
-  global.connection.query(`SELECT * FROM user WHERE ?`, { id: userId }, function (error, results, fields) {
+  global.connection.query(`SELECT * FROM User WHERE ?`, { id: userId }, function (error, results, fields) {
     if (error) throw error;
 
     res.send({
@@ -59,11 +58,11 @@ export const signup = async (req, res, next) => {
   let hashedPassword = await bcrypt.hash(postData.password, 10);
   postData["password"] = hashedPassword;
 
-  global.connection.query("INSERT INTO user SET ?", postData, async function (error, results, fields) {
+  global.connection.query("INSERT INTO User SET ?", postData, async function (error, results, fields) {
     if (error) throw error;
 
     const timestamp = new Date().getTime();
-    global.connection.query(`SELECT * FROM user WHERE ?`, { id: results.insertId }, function (error, users, fields) {
+    global.connection.query(`SELECT * FROM User WHERE ?`, { id: results.insertId }, function (error, users, fields) {
       if (error) throw error;
       const userInfo = {
         userId: users[0].id,
@@ -93,7 +92,7 @@ Example postData:
 export const signin = async (req, res, next) => {
   const postData = req.body;
   const username = postData.username;
-  global.connection.query(`SELECT * FROM user WHERE ?`, { username }, function (error, results, fields) {
+  global.connection.query(`SELECT * FROM User WHERE ?`, { username }, function (error, results, fields) {
     if (error) throw error;
     const user_data = results[0];
     if (!user_data) {

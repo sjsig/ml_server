@@ -11,7 +11,7 @@ export const createProperty = (req, res) => {
   console.log("here is the createProperty");
   console.log(data);
 
-  global.connection.query("INSERT INTO property SET ?", data, function (error, results, fields) {
+  global.connection.query("INSERT INTO Property SET ?", data, function (error, results, fields) {
     if (error) throw error;
     res.send({
       status: 201,
@@ -37,7 +37,7 @@ export const getProperty = (req, res) => {
   const { propertyId } = req.params;
   const data = { property_id: propertyId };
 
-  global.connection.query(`SELECT * FROM property WHERE ?`, data, function (error, results, fields) {
+  global.connection.query(`SELECT * FROM Property WHERE ?`, data, function (error, results, fields) {
     if (error) throw error;
 
     res.send({
@@ -50,7 +50,7 @@ export const getProperty = (req, res) => {
 export const getLandlordProperties = (req, res) => {
   const data = {};
   data.owner_id = req.params.user.id;
-  global.connection.query(`SELECT * FROM property WHERE ?`, data, function (error, results, fields) {
+  global.connection.query(`SELECT * FROM Property WHERE ?`, data, function (error, results, fields) {
     if (error) throw error;
 
     res.send({
@@ -62,7 +62,7 @@ export const getLandlordProperties = (req, res) => {
 
 export const getAllProperties = (req, res) => {
   const data = { owner_id: req.params.user.id };
-  global.connection.query(`SELECT * FROM property WHERE ?`, data, function (error, results, fields) {
+  global.connection.query(`SELECT * FROM Property WHERE ?`, data, function (error, results, fields) {
     if (error) throw error;
 
     res.send({
@@ -76,7 +76,7 @@ export const updateProperty = (req, res) => {
   const data = req.body;
   const { propertyId } = req.params;
 
-  global.connection.query(`UPDATE property SET ? WHERE property_id=${propertyId}`, data, function (
+  global.connection.query(`UPDATE Property SET ? WHERE property_id=${propertyId}`, data, function (
     error,
     results,
     fields
@@ -112,7 +112,7 @@ export const deleteProperty = (req, res) => {
   const { propertyId } = req.params;
   const data = { property_id: propertyId };
 
-  global.connection.query(`DELETE FROM property WHERE ?`, data, function (error, results, fields) {
+  global.connection.query(`DELETE FROM Property WHERE ?`, data, function (error, results, fields) {
     if (error) throw error;
 
     if (results.affectedRows == 1) {

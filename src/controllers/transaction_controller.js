@@ -1,7 +1,7 @@
 export const getUserTransactionHistory =  (req, res) => {
     const data = { tenant_id : req.params.user.id }
 
-    global.connection.query(`SELECT * FROM transaction WHERE ?`, 
+    global.connection.query(`SELECT * FROM Transaction WHERE ?`, 
     data, 
     function (error, results, fields) {
         if (error) throw error;

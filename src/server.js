@@ -9,22 +9,29 @@ import mysql from "mysql";
 
 dotenv.config({ silent: true });
 
-// const config = {
-//   database: {
-//     host: "us-cdbr-east-06.cleardb.net",
-//     user: "b51ff3c341730d",
-//     password: "a58a7596",
-//     database: "heroku_341a27901840f2f",
-//   },
-// };
+const config = {
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASS,
+      database: process.env.DB_NAME,
+      reconnect: true,
+      insecureAuth: true
+   }
+
+console.log(config)
 
 // initialize
 const app = express();
 
 //Database connection
-global.connection = mysql.createConnection(process.env.DB_URL);
+global.connection = mysql.createConnection(config);
 global.connection.connect();
 
+
+global.connection.query(`SELECT * FROM Property`, {}, function (error, results, fields) {
+  if (error) throw error;
+  console.log(results)
+});
 
 // enable/disable cross origin resource sharing if necessary
 app.use(cors());

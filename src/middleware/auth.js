@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-//make sure user is logged in (authentification)
+//make sure Useris logged in (authentification)
 exports.isLoggedIn = function (req, res, next) {
   try {
     const token = req.headers.authorization.split(" ")[1]; //authorization is set up as such: Bearer token
@@ -25,7 +25,7 @@ exports.isLoggedIn = function (req, res, next) {
   }
 };
 
-//make sure we ge the correct user (authorization) or an admin
+//make sure we ge the correct User(authorization) or an admin
 exports.isAuthorized = function (req, res, next) {
   try {
     const token = req.headers.authorization.split(" ")[1];

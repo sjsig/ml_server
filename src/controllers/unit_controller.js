@@ -10,7 +10,7 @@ export const createUnit = (req, res) => {
         ...req.body,
         property_id: req.params.propertyId
     }
-    global.connection.query('INSERT INTO unit SET ?',
+    global.connection.query('INSERT INTO Unit SET ?',
     data,
     function (error, results, fields) {
         if (error) throw error;
@@ -24,7 +24,7 @@ export const getAllUnitsByProperty = (req, res) => {
     const { propertyId } = req.params; 
     const data = { property_id: propertyId }
 
-    global.connection.query(`SELECT * FROM unit WHERE ?`, 
+    global.connection.query(`SELECT * FROM Unit WHERE ?`, 
     data, 
     function (error, results, fields) {
         if (error) throw error;
@@ -41,7 +41,7 @@ export const getUnit =  (req, res) => {
     const { unitId } = req.params; 
     const data = { unit_id: unitId }
 
-    global.connection.query(`SELECT * FROM unit WHERE ?`, 
+    global.connection.query(`SELECT * FROM Unit WHERE ?`, 
     data, 
     function (error, results, fields) {
         if (error) throw error;
@@ -57,7 +57,7 @@ export const deleteUnit  = (req, res) => {
     const { unitId } = req.params; 
     const data = { unit_id : unitId }
     
-    global.connection.query(`DELETE FROM unit WHERE ?`,
+    global.connection.query(`DELETE FROM Unit WHERE ?`,
     data, 
     function (error, results, fields) {
     
@@ -82,7 +82,7 @@ export const updateUnit =  (req, res) => {
     const data = req.body
     const { unitId } = req.params 
         
-    global.connection.query(`UPDATE unit SET ? WHERE unit_id=${unitId}`,
+    global.connection.query(`UPDATE Unit SET ? WHERE unit_id=${unitId}`,
     data,
     function (error, results, fields) {
         if (error) throw error;

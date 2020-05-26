@@ -10,7 +10,7 @@ export const createRating = (req, res) => {
         ...req.body,
         being_rated_id : req.params.user.id
     }
-    global.connection.query('INSERT INTO rating SET ?',
+    global.connection.query('INSERT INTO Rating SET ?',
     data,
     function (error, results, fields) {
         if (error) throw error;
