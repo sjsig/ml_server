@@ -36,20 +36,6 @@ export const getAllUnitsByProperty = (req, res) => {
     })
 }
 
-export const getVacantUnits = (req, res) => {
-    const data = { is_occupied: 0 }
-
-    global.connection.query(`SELECT * FROM unit WHERE ?`, 
-    data, 
-    function (error, results, fields) {
-        if (error) throw error;
-    
-        res.send({
-            status: 200,
-            units: results
-        })
-    })
-}
 
 export const getUnit =  (req, res) => {
     const { unitId } = req.params; 
