@@ -126,10 +126,10 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `Transaction`;
 CREATE TABLE `Transaction` (
-  `transaction_id` INT NOT NULL AUTO_INCREMENT,
-  `landlord_id` INT NOT NULL,
-  `tenant_id` INT NOT NULL,
+  `user_id` INT NOT NULL AUTO_INCREMENT,
   `amount` DECIMAL(10,2) NOT NULL,
+  `date` DATETIME NOT NULL,
+  `description` VARCHAR(400) NULL, 
   INDEX `fk_Transaction_User1_idx` (`landlord_id` ASC),
   INDEX `fk_Transaction_User2_idx` (`tenant_id` ASC),
   PRIMARY KEY (`transaction_id`),
@@ -149,3 +149,153 @@ ENGINE = InnoDB;
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
+DROP EVENT IF EXISTS PerformTransaction;   
+DROP EVENT IF EXISTS CheckExpired;
+DROP TRIGGER IF EXISTS SetOccupied;
+DROP PROCEDURE IF EXISTS insertTransactions;
+
+
+
+-- ---------------
+-- no renting from apartment you own
+-- End date after start date
+-- No two leases on one active unit. 
+-- ---------------
+
+
+DELIMITER $$
+CREATE TRIGGER SetOccupied
+	AFTER INSERT ON Lease
+    FOR EACH ROW
+    BEGIN
+      IF (count(SELECT * FROM Unit u WHERE u.unit_id == new.unit_id AND u.occupied == 1) == 0
+        AND new.start_date < new.end_date
+        AND new.leasing_user_id <> (
+          SELECT owner_id FROM Property p 
+          WHERE p.property_id == (
+            SELECT property_id FROM unit u 
+            WHERE u.unit_id == new.unit_id)
+        )
+      )
+      THEN
+        UPDATE Unit SET 
+          occupied = 1 
+          WHERE unit_id == new.unit_id;
+      END IF;
+    END$$
+DELIMITER ;
+
+
+
+
+
+
+-- ---------------
+-- Check_expired
+-- Once a day, on whatever second we build the schema, runs over all leases and checks if any one expired the previous day. 
+-- If so, set occupied = 0
+-- ---------------
+
+CREATE EVENT checkExpired
+    ON SCHEDULE EVERY 1 DAY
+    STARTS CURRENT_TIMESTAMP
+    ENDS CURRENT_TIMESTAMP + INTERVAL 1 MONTH
+    DO
+      UPDATE unit SET occupied = 0
+      WHERE unit_id IN (
+        SELECT unit_id FROM Lease l 
+          WHERE Datediff(l.end_date, CURRENT_TIMESTAMP()) >= 0 
+          AND Datediff(l.end_date, CURRENT_TIMESTAMP()) < 1
+        )
+      ); 
+
+
+
+
+
+
+-- ---------------
+-- Perform_transaction
+-- Once a month
+-- add new transaction to Transaction for each payment and collection
+-- ---------------
+
+CREATE EVENT PerformTransaction
+    ON SCHEDULE EVERY 1 MONTH
+    STARTS CURRENT_TIMESTAMP
+    ENDS CURRENT_TIMESTAMP + INTERVAL 1 MONTH -- be kind to sunapee
+    DO
+      START TRANSACTION;
+        CALL insertTransactions();
+      COMMIT;
+
+
+-- ----------------
+-- insertTransactions
+-- Accompanying stored procedure for performTransaction() scheduled event 
+-- ----------------
+DELIMITER $$
+CREATE PROCEDURE insertTransactions
+    BEGIN
+      DECLARE numRows INT DEFAULT 0;
+      DECLARE currRow INT DEFAULT 0;
+      SELECT count(*) from leases INTO numRows;
+      SET currRow = 0;
+
+      WHILE currRow < numRows DO
+        INSERT INTO Transaction VALUES (
+          -- ------------------------------
+          (
+            SELECT leasing_user_id
+            FROM leases l
+            WHERE (GETDATE() > l.start_date AND GETDATE() < l.end_date)
+            LIMIT currRow, 1
+          ), 
+          -- ------------------------------
+          (
+            SELECT price_monthly
+            FROM leases l
+            WHERE (GETDATE() > l.start_date AND GETDATE() < l.end_date)
+            LIMIT currRow, 1
+          ), 
+          -- ------------------------------
+          CURRENT_TIMESTAMP, 
+          -- ------------------------------
+          "Paid monthly lease"
+          -- ------------------------------
+        );
+        -- end INSERT
+
+        -- Also add a transaction for each payment to a landlord
+        INSERT INTO transactions VALUES (
+          -- ------------------------------
+          (
+            SELECT owner_id FROM property p 
+            WHERE p.property_id == (
+              SELECT property_id FROM unit u 
+              WHERE u.unit_id == (
+                SELECT unit_id FROM leases l 
+                LIMIT currRow, 1 -- only looks at row number (currRow)
+              )
+            )
+          ), 
+          -- ------------------------------
+          (
+            SELECT price_monthly
+            FROM leases l
+            WHERE (GETDATE() > l.start_date AND GETDATE() < l.end_date)
+            LIMIT currRow, 1 -- only looks at row number (currRow)
+          ), 
+          -- ------------------------------
+          CURRENT_TIMESTAMP, 
+          -- ------------------------------
+          "Collected monthly lease"
+          -- ------------------------------
+        ); -- end INSERT
+
+        SET currRow = currRow + 1;
+
+      END WHILE;  
+    END$$
+DELIMITER ;
