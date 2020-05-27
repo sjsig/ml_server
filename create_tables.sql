@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS `Property` (
 	CONSTRAINT `fk_Property_User1`
 		FOREIGN KEY (`owner_id`)
 		REFERENCES `User` (`id`)
-		ON DELETE NO ACTION
+		ON DELETE CASCADE
 		ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
@@ -63,7 +63,7 @@ CREATE TABLE `Unit` (
   CONSTRAINT `fk_Unit_Property1`
     FOREIGN KEY (`property_id`)
     REFERENCES `Property` (`property_id`)
-    ON DELETE NO ACTION
+    ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
@@ -85,12 +85,12 @@ CREATE TABLE `Lease` (
   CONSTRAINT `fk_Lease_Unit1`
     FOREIGN KEY (`unit_id`)
     REFERENCES `Unit` (`unit_id`)
-    ON DELETE NO ACTION
+    ON DELETE CASCADE
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Lease_User1`
     FOREIGN KEY (`leasing_user_id`)
     REFERENCES `User` (`id`)
-    ON DELETE NO ACTION
+    ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
@@ -111,12 +111,12 @@ CREATE TABLE  `Rating` (
   CONSTRAINT `fk_Rating_User1`
     FOREIGN KEY (`rater_id`)
     REFERENCES `User` (`id`)
-    ON DELETE NO ACTION
+    ON DELETE CASCADE
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Rating_User2`
     FOREIGN KEY (`being_rated_id`)
     REFERENCES `User` (`id`)
-    ON DELETE NO ACTION
+    ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
@@ -136,12 +136,12 @@ CREATE TABLE `Transaction` (
   CONSTRAINT `fk_Transaction_User1`
     FOREIGN KEY (`landlord_id`)
     REFERENCES `User` (`id`)
-    ON DELETE NO ACTION
+    ON DELETE CASCADE
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_Transaction_User2`
     FOREIGN KEY (`tenant_id`)
     REFERENCES `User` (`id`)
-    ON DELETE NO ACTION
+    ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
