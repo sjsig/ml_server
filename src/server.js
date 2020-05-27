@@ -15,7 +15,6 @@ const config = {
       password: process.env.DB_PASS,
       database: process.env.DB_NAME,
       reconnect: true,
-      insecureAuth: true
    }
 
 console.log(config)
@@ -28,10 +27,12 @@ global.connection = mysql.createConnection(config);
 global.connection.connect();
 
 
-global.connection.query(`SELECT * FROM Property`, {}, function (error, results, fields) {
-  if (error) throw error;
-  console.log(results)
-});
+setInterval(keepAlive, 59000);
+function keepAlive() {
+    global.connection.query('SELECT 1');
+    console.log("Fired Keep-Alive");
+    return;
+}
 
 // enable/disable cross origin resource sharing if necessary
 app.use(cors());
