@@ -21,7 +21,6 @@ CREATE TABLE `user` (
   `password` VARCHAR(60) NOT NULL,
   `age` INT NULL,
   `gender` VARCHAR(45) NULL,
-  `account_balance` DECIMAL(10,2) NOT NULL DEFAULT 0.0,
   `is_tenant` BOOLEAN NOT NULL DEFAULT true,
   `is_landlord` BOOLEAN NOT NULL DEFAULT false,
   `is_admin` BOOLEAN NOT NULL DEFAULT false, 
