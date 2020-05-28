@@ -7,8 +7,7 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 
 -- -----------------------------------------------------
 -- Schema mydb
--- -----------------------------------------------------
-use `heroku_341a27901840f2f`;
+use `innodb`;
 -- -----------------------------------------------------
 -- Table `heroku_341a27901840f2f`.`User`
 -- -----------------------------------------------------
@@ -125,10 +124,10 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `Transaction`;
 CREATE TABLE `Transaction` (
-  'transaction_id' INT NOT NULL AUTO_INCREMENT,
+  `transaction_id` INT NOT NULL AUTO_INCREMENT,
   `user_id` INT NOT NULL,
   `delta` DECIMAL(10,2) NOT NULL,
-  `date` DATETIME NOT NULL DEFAULT NOW(),
+  `date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `description` VARCHAR(400) NULL, 
   INDEX `fk_Transaction_User_idx` (`user_id` ASC),
   PRIMARY KEY (`transaction_id`),
@@ -136,9 +135,14 @@ CREATE TABLE `Transaction` (
     FOREIGN KEY (`user_id`)
     REFERENCES `User` (`id`)
     ON DELETE CASCADE
-    ON UPDATE NO ACTION,
-  
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
+
+
+DROP EVENT IF EXISTS PerformTransaction;   
+DROP EVENT IF EXISTS CheckExpired;
+DROP TRIGGER IF EXISTS SetOccupied;
+DROP PROCEDURE IF EXISTS insertTransactions;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
@@ -164,25 +168,22 @@ CREATE TRIGGER SetOccupied
 	AFTER INSERT ON Lease
     FOR EACH ROW
     BEGIN
-      IF (count(SELECT * FROM Unit u WHERE u.unit_id == new.unit_id AND u.is_occupied == 1) == 0
+      IF (SELECT count(*) FROM Unit u WHERE (u.unit_id = new.unit_id) AND (u.is_occupied = 1) = 0
         AND new.start_date < new.end_date
         AND new.leasing_user_id <> (
           SELECT owner_id FROM Property p 
-          WHERE p.property_id == (
+          WHERE p.property_id = (
             SELECT property_id FROM unit u 
-            WHERE u.unit_id == new.unit_id)
+            WHERE u.unit_id = new.unit_id)
         )
       )
       THEN
         UPDATE Unit SET 
           occupied = 1 
-          WHERE unit_id == new.unit_id;
+          WHERE unit_id = new.unit_id;
       END IF;
     END$$
 DELIMITER ;
-
-
-
 
 
 
@@ -202,28 +203,11 @@ CREATE EVENT checkExpired
         SELECT unit_id FROM Lease l 
           WHERE Datediff(l.end_date, CURRENT_TIMESTAMP()) >= 0 
           AND Datediff(l.end_date, CURRENT_TIMESTAMP()) < 1
-        )
-      ); 
+        );
 
 
 
 
-
-
--- ---------------
--- Perform_transaction
--- Once a month
--- add new transaction to Transaction for each payment and collection
--- ---------------
-
-CREATE EVENT PerformTransaction
-    ON SCHEDULE EVERY 1 MONTH
-    STARTS CURRENT_TIMESTAMP
-    ENDS CURRENT_TIMESTAMP + INTERVAL 1 MONTH -- be kind to sunapee
-    DO
-      START TRANSACTION;
-        CALL insertTransactions();
-      COMMIT;
 
 
 -- ----------------
@@ -231,11 +215,11 @@ CREATE EVENT PerformTransaction
 -- Accompanying stored procedure for performTransaction() scheduled event 
 -- ----------------
 DELIMITER $$
-CREATE PROCEDURE insertTransactions
+CREATE PROCEDURE insertTransactions()
     BEGIN
       DECLARE numRows INT DEFAULT 0;
       DECLARE currRow INT DEFAULT 0;
-      SELECT count(*) from leases INTO numRows;
+      SELECT count(*) from lease INTO numRows;
       SET currRow = 0;
 
       WHILE currRow < numRows DO
@@ -243,14 +227,14 @@ CREATE PROCEDURE insertTransactions
           -- ------------------------------
           (
             SELECT leasing_user_id
-            FROM leases l
+            FROM lease l
             WHERE (GETDATE() > l.start_date AND GETDATE() < l.end_date)
             LIMIT currRow, 1
           ), 
           -- ------------------------------
           (
             SELECT price_monthly
-            FROM leases l
+            FROM lease l
             WHERE (GETDATE() > l.start_date AND GETDATE() < l.end_date)
             LIMIT currRow, 1
           ), 
@@ -267,10 +251,10 @@ CREATE PROCEDURE insertTransactions
           -- ------------------------------
           (
             SELECT owner_id FROM property p 
-            WHERE p.property_id == (
+            WHERE p.property_id = (
               SELECT property_id FROM unit u 
-              WHERE u.unit_id == (
-                SELECT unit_id FROM leases l 
+              WHERE u.unit_id = (
+                SELECT unit_id FROM lease l 
                 LIMIT currRow, 1 -- only looks at row number (currRow)
               )
             )
@@ -278,7 +262,7 @@ CREATE PROCEDURE insertTransactions
           -- ------------------------------
           (
             SELECT price_monthly
-            FROM leases l
+            FROM lease l
             WHERE (GETDATE() > l.start_date AND GETDATE() < l.end_date)
             LIMIT currRow, 1 -- only looks at row number (currRow)
           ), 
@@ -294,3 +278,18 @@ CREATE PROCEDURE insertTransactions
       END WHILE;  
     END$$
 DELIMITER ;
+
+-- ---------------
+-- Perform_transaction
+-- Once a month
+-- add new transaction to Transaction for each payment and collection
+-- ---------------
+
+CREATE EVENT PerformTransaction
+    ON SCHEDULE EVERY 1 MONTH
+    STARTS CURRENT_TIMESTAMP
+    ENDS CURRENT_TIMESTAMP + INTERVAL 1 MONTH -- be kind to sunapee
+    DO
+      START TRANSACTION;
+        CALL insertTransactions();
+      COMMIT;
