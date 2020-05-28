@@ -65,5 +65,9 @@ router
 // TRANSACTION CONTROLLER
 
 router.route("/user/:userId/transaction").get(isAuthorized, TransactionController.getUserTransactionHistory);
+router
+  .route("/user/:userId/balance")
+  .get(isAuthorized, TransactionController.getUserBalance)
+  .post(isAuthorized, TransactionController.addToBalance);
 
 export default router;

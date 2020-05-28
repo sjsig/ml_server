@@ -127,8 +127,8 @@ DROP TABLE IF EXISTS `Transaction`;
 CREATE TABLE `Transaction` (
   'transaction_id' INT NOT NULL AUTO_INCREMENT,
   `user_id` INT NOT NULL,
-  `amount` DECIMAL(10,2) NOT NULL,
-  `date` DATETIME NOT NULL,
+  `delta` DECIMAL(10,2) NOT NULL,
+  `date` DATETIME NOT NULL DEFAULT NOW(),
   `description` VARCHAR(400) NULL, 
   INDEX `fk_Transaction_User_idx` (`user_id` ASC),
   PRIMARY KEY (`transaction_id`),
