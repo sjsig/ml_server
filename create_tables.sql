@@ -164,7 +164,7 @@ CREATE TRIGGER SetOccupied
 	AFTER INSERT ON Lease
     FOR EACH ROW
     BEGIN
-      IF (count(SELECT * FROM Unit u WHERE u.unit_id == new.unit_id AND u.occupied == 1) == 0
+      IF (count(SELECT * FROM Unit u WHERE u.unit_id == new.unit_id AND u.is_occupied == 1) == 0
         AND new.start_date < new.end_date
         AND new.leasing_user_id <> (
           SELECT owner_id FROM Property p 
