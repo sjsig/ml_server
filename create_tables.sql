@@ -74,8 +74,8 @@ DROP TABLE IF EXISTS `Lease`;
 CREATE TABLE `Lease` (
   `lease_id` INT NOT NULL AUTO_INCREMENT,
   `unit_id` INT NOT NULL,
-  `start_date` VARCHAR(15) NOT NULL,
-  `end_date` VARCHAR(15) NOT NULL,
+  `start_date` DATETIME NOT NULL,
+  `end_date` DATETIME NOT NULL,
   `price_monthly` DECIMAL(10,2) NOT NULL,
   `leasing_user_id` INT NOT NULL,
   PRIMARY KEY (`lease_id`),
