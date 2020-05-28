@@ -7,8 +7,7 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 
 -- -----------------------------------------------------
 -- Schema mydb
--- -----------------------------------------------------
-use `heroku_341a27901840f2f`;
+use `innodb`;
 -- -----------------------------------------------------
 -- Table `heroku_341a27901840f2f`.`User`
 -- -----------------------------------------------------
@@ -125,10 +124,10 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `Transaction`;
 CREATE TABLE `Transaction` (
-  'transaction_id' INT NOT NULL AUTO_INCREMENT,
+  `transaction_id` INT NOT NULL AUTO_INCREMENT,
   `user_id` INT NOT NULL,
   `delta` DECIMAL(10,2) NOT NULL,
-  `date` DATETIME NOT NULL DEFAULT NOW(),
+  `date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `description` VARCHAR(400) NULL, 
   INDEX `fk_Transaction_User_idx` (`user_id` ASC),
   PRIMARY KEY (`transaction_id`),
@@ -136,9 +135,14 @@ CREATE TABLE `Transaction` (
     FOREIGN KEY (`user_id`)
     REFERENCES `User` (`id`)
     ON DELETE CASCADE
-    ON UPDATE NO ACTION,
-  
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
+
+
+DROP EVENT IF EXISTS PerformTransaction;   
+DROP EVENT IF EXISTS CheckExpired;
+DROP TRIGGER IF EXISTS SetOccupied;
+DROP PROCEDURE IF EXISTS insertTransactions;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
