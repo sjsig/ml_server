@@ -168,25 +168,22 @@ CREATE TRIGGER SetOccupied
 	AFTER INSERT ON Lease
     FOR EACH ROW
     BEGIN
-      IF (count(SELECT * FROM Unit u WHERE u.unit_id == new.unit_id AND u.occupied == 1) == 0
+      IF (SELECT count(*) FROM Unit u WHERE (u.unit_id = new.unit_id) AND (u.occupied = 1) = 0
         AND new.start_date < new.end_date
         AND new.leasing_user_id <> (
           SELECT owner_id FROM Property p 
-          WHERE p.property_id == (
+          WHERE p.property_id = (
             SELECT property_id FROM unit u 
-            WHERE u.unit_id == new.unit_id)
+            WHERE u.unit_id = new.unit_id)
         )
       )
       THEN
         UPDATE Unit SET 
           occupied = 1 
-          WHERE unit_id == new.unit_id;
+          WHERE unit_id = new.unit_id;
       END IF;
     END$$
 DELIMITER ;
-
-
-
 
 
 
@@ -206,28 +203,11 @@ CREATE EVENT checkExpired
         SELECT unit_id FROM Lease l 
           WHERE Datediff(l.end_date, CURRENT_TIMESTAMP()) >= 0 
           AND Datediff(l.end_date, CURRENT_TIMESTAMP()) < 1
-        )
-      ); 
+        );
 
 
 
 
-
-
--- ---------------
--- Perform_transaction
--- Once a month
--- add new transaction to Transaction for each payment and collection
--- ---------------
-
-CREATE EVENT PerformTransaction
-    ON SCHEDULE EVERY 1 MONTH
-    STARTS CURRENT_TIMESTAMP
-    ENDS CURRENT_TIMESTAMP + INTERVAL 1 MONTH -- be kind to sunapee
-    DO
-      START TRANSACTION;
-        CALL insertTransactions();
-      COMMIT;
 
 
 -- ----------------
@@ -235,11 +215,11 @@ CREATE EVENT PerformTransaction
 -- Accompanying stored procedure for performTransaction() scheduled event 
 -- ----------------
 DELIMITER $$
-CREATE PROCEDURE insertTransactions
+CREATE PROCEDURE insertTransactions()
     BEGIN
       DECLARE numRows INT DEFAULT 0;
       DECLARE currRow INT DEFAULT 0;
-      SELECT count(*) from leases INTO numRows;
+      SELECT count(*) from lease INTO numRows;
       SET currRow = 0;
 
       WHILE currRow < numRows DO
@@ -247,14 +227,14 @@ CREATE PROCEDURE insertTransactions
           -- ------------------------------
           (
             SELECT leasing_user_id
-            FROM leases l
+            FROM lease l
             WHERE (GETDATE() > l.start_date AND GETDATE() < l.end_date)
             LIMIT currRow, 1
           ), 
           -- ------------------------------
           (
             SELECT price_monthly
-            FROM leases l
+            FROM lease l
             WHERE (GETDATE() > l.start_date AND GETDATE() < l.end_date)
             LIMIT currRow, 1
           ), 
@@ -271,10 +251,10 @@ CREATE PROCEDURE insertTransactions
           -- ------------------------------
           (
             SELECT owner_id FROM property p 
-            WHERE p.property_id == (
+            WHERE p.property_id = (
               SELECT property_id FROM unit u 
-              WHERE u.unit_id == (
-                SELECT unit_id FROM leases l 
+              WHERE u.unit_id = (
+                SELECT unit_id FROM lease l 
                 LIMIT currRow, 1 -- only looks at row number (currRow)
               )
             )
@@ -282,7 +262,7 @@ CREATE PROCEDURE insertTransactions
           -- ------------------------------
           (
             SELECT price_monthly
-            FROM leases l
+            FROM lease l
             WHERE (GETDATE() > l.start_date AND GETDATE() < l.end_date)
             LIMIT currRow, 1 -- only looks at row number (currRow)
           ), 
@@ -298,3 +278,18 @@ CREATE PROCEDURE insertTransactions
       END WHILE;  
     END$$
 DELIMITER ;
+
+-- ---------------
+-- Perform_transaction
+-- Once a month
+-- add new transaction to Transaction for each payment and collection
+-- ---------------
+
+CREATE EVENT PerformTransaction
+    ON SCHEDULE EVERY 1 MONTH
+    STARTS CURRENT_TIMESTAMP
+    ENDS CURRENT_TIMESTAMP + INTERVAL 1 MONTH -- be kind to sunapee
+    DO
+      START TRANSACTION;
+        CALL insertTransactions();
+      COMMIT;
