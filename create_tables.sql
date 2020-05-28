@@ -121,27 +121,23 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `Debt`
+-- Table `Transaction`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `Transaction`;
 CREATE TABLE `Transaction` (
-  `user_id` INT NOT NULL AUTO_INCREMENT,
+  'transaction_id' INT NOT NULL AUTO_INCREMENT,
+  `user_id` INT NOT NULL,
   `amount` DECIMAL(10,2) NOT NULL,
   `date` DATETIME NOT NULL,
   `description` VARCHAR(400) NULL, 
-  INDEX `fk_Transaction_User1_idx` (`landlord_id` ASC),
-  INDEX `fk_Transaction_User2_idx` (`tenant_id` ASC),
+  INDEX `fk_Transaction_User_idx` (`user_id` ASC),
   PRIMARY KEY (`transaction_id`),
-  CONSTRAINT `fk_Transaction_User1`
-    FOREIGN KEY (`landlord_id`)
+  CONSTRAINT `fk_Transaction_User`
+    FOREIGN KEY (`user_id`)
     REFERENCES `User` (`id`)
     ON DELETE CASCADE
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_Transaction_User2`
-    FOREIGN KEY (`tenant_id`)
-    REFERENCES `User` (`id`)
-    ON DELETE CASCADE
-    ON UPDATE NO ACTION)
+  
 ENGINE = InnoDB;
 
 
