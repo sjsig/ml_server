@@ -38,14 +38,18 @@ export const getLease = (req, res) => {
 export const getSignedLease = (req, res) => {
   const data = { leasing_user_id: req.params.user.id };
 
-  global.connection.query(`SELECT * FROM Lease WHERE ?`, data, function (error, results, fields) {
-    if (error) throw error;
+  global.connection.query(
+    `SELECT * FROM Lease, Unit, Property WHERE Lease.unit_id = Unit.unit_id AND Unit.property_id = Property.property_id AND Lease.leasing_user_id = ?`,
+    data.leasing_user_id,
+    function (error, results, fields) {
+      if (error) throw error;
 
-    res.send({
-      status: 200,
-      lease: results[0],
-    });
-  });
+      res.send({
+        status: 200,
+        lease: results[0],
+      });
+    }
+  );
 };
 
 export const deleteLease = (req, res) => {

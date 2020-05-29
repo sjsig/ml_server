@@ -57,10 +57,14 @@ router.route("/unit/:unitId/lease").post(isLoggedIn, LeaseController.createLease
 router.route("/lease/:userId").get(isAuthorized, LeaseController.getSignedLease);
 
 // RATING CONTROLLER
+
 router
-  .route("/user/:userId/rating")
+  .route("/rating/:landlord_id/rater/:userId")
+  .get(isAuthorized, RatingController.getRating)
   .post(isLoggedIn, RatingController.createRating)
-  .get(RatingController.getRatingByUser);
+  .put(isAuthorized, RatingController.editRating)
+  .delete(isAuthorized, RatingController.deleteRating);
+router.route("/rating/:landlord_id").get(RatingController.getRatingByUser);
 
 // TRANSACTION CONTROLLER
 
