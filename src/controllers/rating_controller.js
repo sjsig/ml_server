@@ -19,9 +19,9 @@ export const createRating = (req, res) => {
   });
 };
 
-export const getRatingByUser = (req, res) => {
+export const getUserScore = (req, res) => {
   // get average rating of a user
-  globabl.connection.query(
+  global.connection.query(
     "SELECT AVG(score) AS avg_score FROM Rating WHERE being_rated_id = ?",
     [req.params.landlord_id],
     function (error, results, fields) {
@@ -32,6 +32,21 @@ export const getRatingByUser = (req, res) => {
       });
     }
   );
+};
+
+export const getAllRatings = (req, res) => {
+  // get all ratings of a user
+  global.connection.query("SELECT * FROM Rating WHERE being_rated_id = ?", [req.params.landlord_id], function (
+    error,
+    results,
+    fields
+  ) {
+    if (error) throw error;
+    res.send({
+      status: 200,
+      ratings: results,
+    });
+  });
 };
 
 export const getRating = (req, res) => {

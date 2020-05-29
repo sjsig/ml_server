@@ -91,11 +91,7 @@ export const updateProperty = (req, res) => {
 
 export const getVacantUnits = (req, res) => {
   global.connection.query(
-    `SELECT *
-    FROM unit
-    LEFT JOIN property
-    ON unit.property_id = property.property_id
-    where unit.is_occupied = false;`,
+    `SELECT * FROM unit, property, user WHERE  unit.property_id = property.property_id AND property.owner_id = user.id AND unit.is_occupied = false`,
     {},
     function (error, results, fields) {
       if (error) throw error;

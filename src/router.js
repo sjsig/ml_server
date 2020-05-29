@@ -64,7 +64,8 @@ router
   .post(isLoggedIn, RatingController.createRating)
   .put(isAuthorized, RatingController.editRating)
   .delete(isAuthorized, RatingController.deleteRating);
-router.route("/rating/:landlord_id").get(RatingController.getRatingByUser);
+router.route("/rating/:landlord_id/score").get(RatingController.getUserScore);
+router.route("/rating/:landlord_id").get(RatingController.getAllRatings);
 
 // TRANSACTION CONTROLLER
 

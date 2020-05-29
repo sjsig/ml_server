@@ -179,7 +179,7 @@ CREATE TRIGGER SetOccupied
       )
       THEN
         UPDATE Unit SET 
-          occupied = 1 
+          is_occupied = 1 
           WHERE unit_id = new.unit_id;
       END IF;
     END$$
@@ -198,7 +198,7 @@ CREATE EVENT checkExpired
     STARTS CURRENT_TIMESTAMP
     ENDS CURRENT_TIMESTAMP + INTERVAL 1 MONTH
     DO
-      UPDATE unit SET occupied = 0
+      UPDATE unit SET is_occupied = 0
       WHERE unit_id IN (
         SELECT unit_id FROM Lease l 
           WHERE Datediff(l.end_date, CURRENT_TIMESTAMP()) >= 0 
