@@ -23,7 +23,8 @@ CREATE TABLE `user` (
   `is_tenant` BOOLEAN NOT NULL DEFAULT true,
   `is_landlord` BOOLEAN NOT NULL DEFAULT false,
   `is_admin` BOOLEAN NOT NULL DEFAULT false, 
-  PRIMARY KEY (`id`))
+  PRIMARY KEY (`id`)),
+  CHECK ('age' > 17)
 ENGINE = InnoDB;
 
 
@@ -56,6 +57,7 @@ CREATE TABLE `Unit` (
   `market_price` DECIMAL(10,2) NOT NULL,
   `unit_number` varchar(45) NOT NULL,
   PRIMARY KEY (`unit_id`),
+  CHECK (`market_price` > 0),
   INDEX `fk_Unit_Property1_idx` (`property_id` ASC),
   UNIQUE INDEX `unit_id_UNIQUE` (`unit_id` ASC),
   CONSTRAINT `fk_Unit_Property1`
@@ -78,6 +80,7 @@ CREATE TABLE `Lease` (
   `price_monthly` DECIMAL(10,2) NOT NULL,
   `leasing_user_id` INT NOT NULL,
   PRIMARY KEY (`lease_id`),
+  CHECK (`start_date` < `end_date`),
   INDEX `fk_Lease_Unit1_idx` (`unit_id` ASC),
   INDEX `fk_Lease_User1_idx` (`leasing_user_id` ASC),
   CONSTRAINT `fk_Lease_Unit1`
@@ -104,6 +107,8 @@ CREATE TABLE  `Rating` (
   `rater_id` INT NOT NULL,
   `being_rated_id` INT NOT NULL,
   PRIMARY KEY (`rating_id`),
+  CHECK (`rater_id` <> `being_rated_id`),
+  CHECK (`score` > 0 AND `score` < 6),
   INDEX `fk_Rating_User1_idx` (`rater_id` ASC),
   INDEX `fk_Rating_User2_idx` (`being_rated_id` ASC),
   CONSTRAINT `fk_Rating_User1`
