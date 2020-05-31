@@ -14,19 +14,24 @@ export const getUserTransactionHistory = (req, res) => {
 export const getUserBalance = (req, res) => {
   const data = { user_id: req.params.user.id };
 
-  global.connection.query(`SELECT SUM(delta) AS balance FROM Transaction WHERE ?`, data, function (
-    error,
-    results,
-    fields
-  ) {
-    if (error) throw error;
-    res.send({
-      status: 200,
-      balance: results[0].balance,
+  global.connection.query(`
+    SELECT SUM(delta) AS balance
+    FROM   transaction
+    WHERE  ?  `, 
+    data, 
+    function (
+      error,
+      results,
+      fields
+    ) {
+      if (error) throw error;
+        res.send({
+          status: 200,
+          balance: results[0].balance,
+        });
     });
-  });
 };
-
+  
 export const addToBalance = (req, res) => {
   const data = { ...req.body, user_id: req.params.user.id };
 

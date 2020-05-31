@@ -23,8 +23,9 @@ CREATE TABLE `user` (
   `is_tenant` BOOLEAN NOT NULL DEFAULT true,
   `is_landlord` BOOLEAN NOT NULL DEFAULT false,
   `is_admin` BOOLEAN NOT NULL DEFAULT false, 
-  PRIMARY KEY (`id`)),
-  CHECK ('age' > 17)
+   CHECK ('age' > 17),
+   CHECK ('is_tenant'=1 OR 'is_landlord' = 1),
+  PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 
 
