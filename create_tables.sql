@@ -23,9 +23,15 @@ CREATE TABLE `user` (
   `is_tenant` BOOLEAN NOT NULL DEFAULT true,
   `is_landlord` BOOLEAN NOT NULL DEFAULT false,
   `is_admin` BOOLEAN NOT NULL DEFAULT false, 
+<<<<<<< HEAD
    CHECK ('age' > 17),
    CHECK ('is_tenant'=1 OR 'is_landlord' = 1),
   PRIMARY KEY (`id`))
+=======
+  PRIMARY KEY (`id`)),
+  CHECK ('age' > 17)
+  CHECK ('is_tenant'==1 OR 'is_landlord' == 1)
+>>>>>>> ec5380bd74be0a15da1f55b139970d788a90dae7
 ENGINE = InnoDB;
 
 
@@ -44,7 +50,7 @@ CREATE TABLE IF NOT EXISTS `Property` (
 		FOREIGN KEY (`owner_id`)
 		REFERENCES `User` (`id`)
 		ON DELETE CASCADE
-		ON UPDATE NO ACTION)
+		ON UPDATE NO ACTION
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------
@@ -65,7 +71,7 @@ CREATE TABLE `Unit` (
     FOREIGN KEY (`property_id`)
     REFERENCES `Property` (`property_id`)
     ON DELETE CASCADE
-    ON UPDATE NO ACTION)
+    ON UPDATE NO ACTION
 ENGINE = InnoDB;
 
 
@@ -93,7 +99,7 @@ CREATE TABLE `Lease` (
     FOREIGN KEY (`leasing_user_id`)
     REFERENCES `User` (`id`)
     ON DELETE CASCADE
-    ON UPDATE NO ACTION)
+    ON UPDATE NO ACTION
 ENGINE = InnoDB;
 
 
@@ -121,7 +127,7 @@ CREATE TABLE  `Rating` (
     FOREIGN KEY (`being_rated_id`)
     REFERENCES `User` (`id`)
     ON DELETE CASCADE
-    ON UPDATE NO ACTION)
+    ON UPDATE NO ACTION
 ENGINE = InnoDB;
 
 
@@ -141,7 +147,7 @@ CREATE TABLE `Transaction` (
     FOREIGN KEY (`user_id`)
     REFERENCES `User` (`id`)
     ON DELETE CASCADE
-    ON UPDATE NO ACTION)
+    ON UPDATE NO ACTION
 ENGINE = InnoDB;
 
 

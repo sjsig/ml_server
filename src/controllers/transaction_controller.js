@@ -19,11 +19,7 @@ export const getUserBalance = (req, res) => {
     FROM   transaction
     WHERE  ?  `, 
     data, 
-    function (
-      error,
-      results,
-      fields
-    ) {
+    function (error, results, fields) {
       if (error) throw error;
         res.send({
           status: 200,
@@ -31,7 +27,7 @@ export const getUserBalance = (req, res) => {
         });
     });
 };
-  
+
 export const addToBalance = (req, res) => {
   const data = { ...req.body, user_id: req.params.user.id };
 
