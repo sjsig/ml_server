@@ -11,7 +11,7 @@ The above variables need to be in your .env. Also, this one:
 - AUTH_SECRET=`fzdxjfhkdkaslaLDSHD87893h`
 
 ## How To Run This App
-- `git@github.com:sjsig/ml_server.git`
+- clone this repo
 - `cd ml_server`
 - `yarn install`
 - `yarn start`
