@@ -1,20 +1,17 @@
 ## Connect to Database
 
-- Username: `b51ff3c341730d`
-- Password: `a58a7596`
-- Host: `us-cdbr-east-06.cleardb.net`
-- Schema: `heroku_341a27901840f2f`
+- DB_HOST=`landlordpub.co8jwtanpqk5.us-east-1.rds.amazonaws.com`
+- DB_USER=`admin`
+- DB_PASS=`password`
+- DB_NAME=`innodb`
+
+## Env Variables
+
+The above variables need to be in your .env. Also, this one:
+- AUTH_SECRET=`fzdxjfhkdkaslaLDSHD87893h`
 
 ## How To Run This App
 - `git@github.com:sjsig/ml_server.git`
 - `cd ml_server`
 - `yarn install`
 - `yarn start`
-- `beep boop`
-
-## How to Deploy
-
-- `$ git add .`
-- `$ git commit -am "make it better"`
-- `$ git push heroku master`
-
