@@ -73,13 +73,17 @@ export const editRating = (req, res) => {
     being_rated_id: req.params.landlord_id,
     rater_id: req.params.userId,
   };
-  global.connection.query("UPDATE Rating SET ? WHERE ?", [newInfo, ratingInfo], function (error, results, fields) {
-    if (error) throw error;
-    res.send({
-      status: 200,
-      rating: results,
-    });
-  });
+  global.connection.query(
+    "UPDATE Rating SET ? WHERE being_rated_id = ? AND rater_id = ? ",
+    [newInfo, ratingInfo.being_rated_id, ratingInfo.rater_id],
+    function (error, results, fields) {
+      if (error) throw error;
+      res.send({
+        status: 200,
+        rating: results,
+      });
+    }
+  );
 };
 
 export const deleteRating = (req, res) => {
