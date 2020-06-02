@@ -23,15 +23,8 @@ CREATE TABLE `user` (
   `is_tenant` BOOLEAN NOT NULL DEFAULT true,
   `is_landlord` BOOLEAN NOT NULL DEFAULT false,
   `is_admin` BOOLEAN NOT NULL DEFAULT false, 
-<<<<<<< HEAD
    CHECK ('age' > 17),
-   CHECK ('is_tenant'=1 OR 'is_landlord' = 1),
-  PRIMARY KEY (`id`))
-=======
-  PRIMARY KEY (`id`)),
-  CHECK ('age' > 17)
-  CHECK ('is_tenant'==1 OR 'is_landlord' == 1)
->>>>>>> ec5380bd74be0a15da1f55b139970d788a90dae7
+   CHECK ('is_tenant'=1 OR 'is_landlord' = 1))
 ENGINE = InnoDB;
 
 
@@ -50,7 +43,7 @@ CREATE TABLE IF NOT EXISTS `Property` (
 		FOREIGN KEY (`owner_id`)
 		REFERENCES `User` (`id`)
 		ON DELETE CASCADE
-		ON UPDATE NO ACTION
+		ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------
@@ -71,7 +64,7 @@ CREATE TABLE `Unit` (
     FOREIGN KEY (`property_id`)
     REFERENCES `Property` (`property_id`)
     ON DELETE CASCADE
-    ON UPDATE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
@@ -99,7 +92,7 @@ CREATE TABLE `Lease` (
     FOREIGN KEY (`leasing_user_id`)
     REFERENCES `User` (`id`)
     ON DELETE CASCADE
-    ON UPDATE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
@@ -127,28 +120,11 @@ CREATE TABLE  `Rating` (
     FOREIGN KEY (`being_rated_id`)
     REFERENCES `User` (`id`)
     ON DELETE CASCADE
-    ON UPDATE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
--- -----------------------------------------------------
--- Table `Transaction`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `Transaction`;
-CREATE TABLE `Transaction` (
-  `transaction_id` INT NOT NULL AUTO_INCREMENT,
-  `user_id` INT NOT NULL,
-  `delta` DECIMAL(10,2) NOT NULL,
-  `date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `description` VARCHAR(400) NULL, 
-  INDEX `fk_Transaction_User_idx` (`user_id` ASC),
-  PRIMARY KEY (`transaction_id`),
-  CONSTRAINT `fk_Transaction_User`
-    FOREIGN KEY (`user_id`)
-    REFERENCES `User` (`id`)
-    ON DELETE CASCADE
-    ON UPDATE NO ACTION
-ENGINE = InnoDB;
+
 
 
 DROP EVENT IF EXISTS PerformTransaction;   
@@ -236,18 +212,19 @@ CREATE PROCEDURE insertTransactions()
 
       WHILE currRow < numRows DO
         INSERT INTO Transaction VALUES (
+		  CEILING(RAND()*1000000), -- id
           -- ------------------------------
           (
             SELECT leasing_user_id
             FROM lease l
-            WHERE (GETDATE() > l.start_date AND GETDATE() < l.end_date)
+            WHERE (NOW() > l.start_date AND NOW() < l.end_date)
             LIMIT currRow, 1
           ), 
           -- ------------------------------
           (
             SELECT price_monthly
             FROM lease l
-            WHERE (GETDATE() > l.start_date AND GETDATE() < l.end_date)
+            WHERE (NOW() > l.start_date AND NOW() < l.end_date)
             LIMIT currRow, 1
           ), 
           -- ------------------------------
@@ -259,7 +236,8 @@ CREATE PROCEDURE insertTransactions()
         -- end INSERT
 
         -- Also add a transaction for each payment to a landlord
-        INSERT INTO transactions VALUES (
+        INSERT INTO Transaction VALUES (
+          CEILING(RAND()*1000000), -- id
           -- ------------------------------
           (
             SELECT owner_id FROM property p 
@@ -275,7 +253,7 @@ CREATE PROCEDURE insertTransactions()
           (
             SELECT price_monthly
             FROM lease l
-            WHERE (GETDATE() > l.start_date AND GETDATE() < l.end_date)
+            WHERE (NOW() > l.start_date AND NOW() < l.end_date)
             LIMIT currRow, 1 -- only looks at row number (currRow)
           ), 
           -- ------------------------------
@@ -300,7 +278,7 @@ DELIMITER ;
 CREATE EVENT PerformTransaction
     ON SCHEDULE EVERY 1 MONTH
     STARTS CURRENT_TIMESTAMP
-    ENDS CURRENT_TIMESTAMP + INTERVAL 1 MONTH -- be kind to sunapee
+    ENDS CURRENT_TIMESTAMP + INTERVAL 1 MONTH -- be kind to AWS
     DO
       START TRANSACTION;
         CALL insertTransactions();
